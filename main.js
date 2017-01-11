@@ -3,9 +3,14 @@ var fs = require('fs');
 var ca = fs.readFileSync('./cert/srca.cer.pem');
 var nodemailer = require('nodemailer');
 var schedule = require('node-schedule');
+var config = {
+	time:'2017-01-28',
+	from_station:'SHH',
+	end_station:'SRG'
+};
 var options = { 
     hostname: 'kyfw.12306.cn',
-    path: '/otn/leftTicket/queryA?leftTicketDTO.train_date=2017-01-28&leftTicketDTO.from_station=SHH&leftTicketDTO.to_station=SRG&purpose_codes=ADULT',
+    path: '/otn/leftTicket/queryA?leftTicketDTO.train_date='+config.time+'&leftTicketDTO.from_station='+config.from_station+'&leftTicketDTO.to_station='+config.end_station+'&purpose_codes=ADULT',
     // rejectUnauthorized: false  // 忽略安全警告
     ca:[ca]
 };
