@@ -4,7 +4,7 @@ var ca = fs.readFileSync('./cert/srca.cer.pem');
 var nodemailer = require('nodemailer');
 var schedule = require('node-schedule');
 var config = {
-	time:'2017-01-28',
+	time:'2017-01-21',
 	from_station:'SHH',
 	end_station:'SRG'
 };
