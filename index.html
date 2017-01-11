@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>查票</title>
+	<script src="http://cdn.bootcss.com/jquery/2.2.2/jquery.js"></script>
+</head>
+<body>
+	<script>
+	var url = 'https://kyfw.12306.cn/otn/leftTicket/queryA?leftTicketDTO.train_date=2017-01-21&leftTicketDTO.from_station=SHH&leftTicketDTO.to_station=SRG&purpose_codes=ADULT';
+		$.get(url,function(data){
+			console.log(data);
+		});
+	</script>
+</body>
+</html>
