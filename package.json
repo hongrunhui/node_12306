@@ -9,7 +9,11 @@
   "author": "hongrunhui",
   "license": "ISC",
   "devDependencies": {
-    "nodemailer":"*",
-    "node-schedule":"*"
+    "nodemailer": "*",
+    "node-schedule": "*"
+  },
+  "dependencies": {
+    "commander": "^2.9.0",
+    "scanf": "^0.7.3"
   }
 }
