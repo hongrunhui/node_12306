@@ -4,9 +4,10 @@
 ##使用方法：
   * 克隆代码到本地``` git clone https://github.com/hongrunhui/node_12306.git ``` 
   * 在当前文件夹终端``` npm install ```安装依赖
-  * ```node main.js```，第一次运行会要求输入信息并且存入config.json，以后再次运行只会读取config.json中的数据，不会要求再次输入。
-  * ```node main.js -r```可以重写config.json。
-  * 车次(train_num)可以输入多个车次，用|分开，如K123|K234(前提这些车次都在同一线路上)。
+  * ```node main.js```，第一次运行会要求输入信息并且存入config.json，以后再次运行只会读取config.json中的数据，不会要求再次输入。如：
+  ![image](https://cloud.githubusercontent.com/assets/9162319/21963573/7fd9194c-db78-11e6-9032-19303a05d467.png)
+  * ```node main.js -r```可以重写config.json(重新输入信息)。
+  * 车次(```train_num```字段)可以输入多个车次，用|分开，如K123|K234(前提这些车次都在同一线路上)。
   
 ##注意：
   * 要使用邮件功能前提是要去邮箱设置里开启smtp;也可以用邮箱授权码代替，这种方式更安全。具体可以见[wiki](https://github.com/hongrunhui/node_12306/wiki/%E9%82%AE%E7%AE%B1%E8%AE%A4%E8%AF%81%E9%94%99%E8%AF%AF%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95)
