@@ -17,7 +17,7 @@ fs.readFile('config.json','utf-8',function(err,data){
 		console.log('输入日期-time(如:2017-01-27)：');
 		config.time = scanf('%s');
 
-		console.log('输入车次-train_num(如:K1209)：');
+		console.log('输入车次-train_num(如:K1209，多个车次用|分开)：');
 		config.train_num = scanf('%s').split('|');
 
 		console.log('输入始发站-from_station(如:SNH)：');
