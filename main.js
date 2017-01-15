@@ -5,11 +5,11 @@ var nodemailer = require('nodemailer');
 var schedule = require('node-schedule');
 var config = {
 	time:'2017-01-21',//日期格式必须是这样
-	from_station:'BJP',//始发站车站代码，这里是北京北
-	end_station:'XMS',//厦门
-	train_num:'K571',//车次
-	your_mail:'****@163.com',//你自己的邮箱，我这里用的是163邮箱，如果你要改其他类型的邮箱的话，那请你修改transporter里的服务器信息
-	mail_pass:'****'//这个可以是密码也可以是邮箱的授权码，前提是开启邮箱的smtp服务，具体步骤可以看issue里，放心写吧
+	from_station:'SNH',//始发站车站代码，这里是北京北
+	end_station:'SRG',//厦门
+	train_num:'K4671',//车次
+	your_mail:'15755191035@163.com',//你自己的邮箱，我这里用的是163邮箱，如果你要改其他类型的邮箱的话，那请你修改transporter里的服务器信息
+	mail_pass:'hongrunhui'//这个可以是密码也可以是邮箱的授权码，前提是开启邮箱的smtp服务，具体步骤可以看issue里，放心写吧
 };
 var yz_temp = '',yw_temp = '';//保存余票状态
 function queryTickets(config){
