@@ -73,7 +73,13 @@ function queryTickets(config){
     }); 
     res.on('end',function(){
     	// console.log('res',data);
-    	var jsonData = JSON.parse(data).data;
+    	var jsonData;
+    	try{
+    	 	jsonData = JSON.parse(data).data;
+    	}catch(e){
+    		console.log('JSON数据出错',e);
+    		return;
+    	}
     	if(!jsonData||jsonData.length == 0){
     		console.log('没有查询到余票信息');
     		return;
