@@ -4,7 +4,7 @@
 ##使用方法：
   * 克隆代码到本地``` git clone https://github.com/hongrunhui/node_12306.git ``` 
   * 在当前文件夹终端``` npm install ```安装依赖
-  * ```node main.js```，第一次运行会要求输入信息并且存入config.json，以后再次运行只会读取config.json中的数据，不会要求再次输入。如：
+  * ```node main.js```，第一次运行会要求输入信息并且存入config.json，以后再次运行只会读取config.json中的数据，不会要求再次输入。如：<br/>
   ![image](https://cloud.githubusercontent.com/assets/9162319/22016021/95f45e68-dcdf-11e6-8267-2d1b19532ce4.png)
   * ```node main.js -r```可以重写config.json(重新输入信息)。
   * 车次(```train_num```字段)可以输入多个车次，用|分开，如K123|K234(前提这些车次都在同一线路上)。
