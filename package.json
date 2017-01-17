@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "commander": "^2.9.0",
+    "iconv": "^2.2.1",
+    "iconv-lite": "^0.4.15",
     "scanf": "^0.7.3"
   }
 }

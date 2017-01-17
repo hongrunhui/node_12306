@@ -5,7 +5,7 @@
   * 克隆代码到本地``` git clone https://github.com/hongrunhui/node_12306.git ``` 
   * 在当前文件夹终端``` npm install ```安装依赖
   * ```node main.js```，第一次运行会要求输入信息并且存入config.json，以后再次运行只会读取config.json中的数据，不会要求再次输入。如：
-  ![image](https://cloud.githubusercontent.com/assets/9162319/21963593/e8150ce6-db78-11e6-9585-4d67657578cc.png)
+  ![image](https://cloud.githubusercontent.com/assets/9162319/22015721/2bb4a91e-dcde-11e6-98da-5753bc6d238f.png)
   * ```node main.js -r```可以重写config.json(重新输入信息)。
   * 车次(```train_num```字段)可以输入多个车次，用|分开，如K123|K234(前提这些车次都在同一线路上)。
   
@@ -21,17 +21,19 @@
   * [博客地址](http://www.cnblogs.com/hongrunhui/p/6284192.html)
 
 ##更新：
-  * ### 0.0.0.3
+  * 0.0.0.4
+    * 车站代码查询改为车站拼音查询
+  * 0.0.0.3
     * 增加学生票查询
     * 增加给其他人发邮件
     * 查询不到信息时自动跳过进入下一次查询
     * 修复JSON数据报错bug
-  * ### 0.0.0.2
+  * 0.0.0.2
     * 可在命令行输入信息
     * 配置文件与主文件分离
     * 支持同一线路多车次监听
     * 修复一些bug
-  * ### 0.0.0.1
+  * 0.0.0.1
     * 实现基本功能
 
 ##声明
