@@ -76,7 +76,7 @@ function queryTickets(config){
 	    hostname: 'kyfw.12306.cn',//12306
 	    port:443,
 	  	method:'GET',
-	    path: '/otn/leftTicket/queryX?leftTicketDTO.train_date='+config.time+'&leftTicketDTO.from_station='+config.from_station.code+'&leftTicketDTO.to_station='+config.end_station.code+'&purpose_codes='+config.ticket_type,
+	    path: '/otn/leftTicket/query?leftTicketDTO.train_date='+config.time+'&leftTicketDTO.from_station='+config.from_station.code+'&leftTicketDTO.to_station='+config.end_station.code+'&purpose_codes='+config.ticket_type,
 	    ca:[ca],//证书
 	    headers:{
 	      'Connection':'keep-alive',
