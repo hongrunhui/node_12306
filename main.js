@@ -1,14 +1,16 @@
-var https = require('https');
-var http = require('http');
-var fs = require('fs');
-var ca = fs.readFileSync('./cert/srca.cer.pem');
-var nodemailer = require('nodemailer');
-var schedule = require('node-schedule');
-var scanf = require('scanf');
-var program = require('commander');
-var UA = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36";
-
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
+const ca = fs.readFileSync('./cert/srca.cer.pem');
+const nodemailer = require('nodemailer');
+const schedule = require('node-schedule');
+const scanf = require('scanf');
+const program = require('commander');
+const UA = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36";
+const inquirer = require('inquirer');
 var config = {};
+console.log(process.argv);
+return;
 program
 	.version('0.0.1')
 	.option('-r, --rewrite', 'rewrite config')
@@ -232,34 +234,46 @@ function queryTickets(config) {
 * 爬取全国车站信息并生成JSON文件
 */
 function stationJson() {
-	var _opt = {
+	let _opt = {
 		hostname: 'kyfw.12306.cn',
-		path: '/otn/resources/js/framework/station_name.js?station_version=1.8964',
-		ca: [ca]
+		path: '/otn/resources/js/framework/station_name.js?station_version=1.9042',
+		ca: [ca],
+		rejectUnauthorized: false		
 	};
-	var _data = '';
-	var _req = https.get(_opt, function (res) {
+	let _data = '';
+	let _req = https.get(_opt, function (res) {
 		res.on('data', function (buff) {
 			_data += buff;
 		});
 		res.on('end', function () {
 			// console.log(_data);
 			try {
-				var re = /\|[\u4e00-\u9fa5]+\|[A-Z]{3}\|\w+\|\w+\|\w+@\w+/g;
+				let re = /\|[\u4e00-\u9fa5]+\|[A-Z]{3}\|\w+\|\w+\|\w+@\w+/g;
 				// console.log('data',_data.match(re));
-				var stationMap = {};
-				var stationArray = [];
-				var temp = _data.match(re);
+				let stationMap = {};
+				let stationArray = [];
+				let temp = _data.match(re);
 				[].forEach.call(temp, function (item, i) {
 					// console.log(item,i);
-					var t = item.split("|");
-					stationArray.push(t[3]);
-					stationMap[t[3]] = {
+					let t = item.split("|");
+					let info = {
 						name: t[1],
 						code: t[2],
 						pinyin: t[3],
 						suoxie: t[4],
 						other: t[5]
+					};
+					stationArray.push(t[3]);
+					if (!stationMap[t[3]]) {
+						stationMap[t[3]] = info;						
+					}
+					else {
+						if (Object.prototype.toString.call(stationMap[t[3]]) === '[object Array]') {
+							stationMap[t[3]] = [...stationMap[t[3]], info];
+						}
+						else {
+							stationMap[t[3]] = [stationMap[t[3]], info];						
+						}
 					}
 				});
 				// console.log(stationMap["hefei"]);
@@ -275,7 +289,7 @@ function stationJson() {
 	});
 }
 function getTime() {
-	var T = new Date();
+	let T = new Date();
 	return T.getFullYear() + '-' + (parseInt(T.getMonth()) + 1) + '-' + T.getDate() + ' ' + T.getHours() + ":" + T.getMinutes() + ":" + T.getSeconds();
 }
 
