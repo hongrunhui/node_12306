@@ -15,6 +15,7 @@
   "dependencies": {
     "commander": "^2.9.0",
     "inquirer": "^4.0.1",
+    "inquirer-autocomplete-prompt": "^0.12.1",
     "scanf": "^0.7.3",
     "webpage": "^0.3.0"
   }
