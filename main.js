@@ -140,75 +140,17 @@ fs.readFile('config.json', 'utf-8', function (err, data) {
 	});
 });
 
-// program
-// 	.version('0.0.1')
-// 	.option('-r, --rewrite', 'rewrite config')
-// 	.parse(process.argv);
-
-// fs.readFile('config.json', 'utf-8', function (err, data) {
-// 	if (err || !data || program.rewrite) {
-
-// 		console.log('输入日期-time(如:2017-01-27)：');
-// 		config.time = scanf('%s');
-
-// 		var _stations = JSON.parse(fs.readFileSync('station.json', 'utf-8'));
-
-// 		console.log('输入始发站拼音-from_station(如:shanghai)：');
-// 		var _start = scanf("%s");
-// 		while (!_stations.stationInfo[_start]) {
-// 			console.log('没有这个车站哦，请重新输入：');
-// 			_start = scanf("%s");
-// 		}
-// 		config.from_station = _stations.stationInfo[_start];
-// 		console.log('输入终点站拼音-end_station(如:hefei)：');
-// 		var _end = scanf('%s');
-// 		while (!_stations.stationInfo[_end]) {
-// 			console.log('没有这个车站哦，请重新输入：');
-// 			_end = scanf("%s");
-// 		}
-// 		config.end_station = _stations.stationInfo[_end];
-
-// 		console.log('输入车次-train_num(如:K1209，多个车次用|分开)：');
-// 		config.train_num = scanf('%s').split('|');
-
-// 		console.log('输入邮箱-your_mail(如:123456789@163.com)：');
-// 		config.your_mail = scanf('%s');
-
-// 		console.log('输入密码或者邮箱授权码-mail_pass：');
-// 		config.mail_pass = scanf('%s');
-
-// 		console.log('是否购买学生票?(y/n)：');
-// 		config.ticket_type = scanf('%s') == 'y' ? '0X00' : 'ADULT';
-
-// 		console.log('输入收件人邮箱(如果与上面的邮箱一致请直接回车)：');
-// 		config.receive_mail = scanf('%s');
-// 		// console.log(config);
-// 		fs.writeFile('config.json', JSON.stringify(config));
-// 	} else {
-// 		// console.log(data);
-// 		config = JSON.parse(data);
-// 	}
-// 	var rule = new schedule.RecurrenceRule();
-// 	rule.second = [0];
-// 	queryTickets(config);
-// 	schedule.scheduleJob(rule, function () {
-// 		queryTickets(config);
-// 	});
-// });
-
-
 var yz_temp = [], yw_temp = [];//保存余票状态
 /*
 * 查询余票
 */
 function queryTickets(config) {
-	console.log(config);
 	/*设置请求头参数*/
 	var options = {
 		hostname: 'kyfw.12306.cn',//12306
 		port: 443,
 		method: 'GET',
-		path: '/otn/leftTicket/query?leftTicketDTO.train_date=' + config.time + '&leftTicketDTO.from_station=' + config.from_station.code + '&leftTicketDTO.to_station=' + config.end_station.code + '&purpose_codes=' + config.ticket_type,
+		path: '/otn/leftTicket/queryO?leftTicketDTO.train_date=' + config.time + '&leftTicketDTO.from_station=' + config.from_station.code + '&leftTicketDTO.to_station=' + config.end_station.code + '&purpose_codes=' + config.ticket_type,
 		ca: [ca],//证书
 		rejectUnauthorized: false,
 		headers: {
@@ -292,7 +234,6 @@ function queryTickets(config) {
 			var trainData;
 			//用来保存返回的json数据
 			var trainMap;
-			console.log(data);
 			try {
 				var _data = JSON.parse(data).data;
 				trainData = _data && _data.result;
