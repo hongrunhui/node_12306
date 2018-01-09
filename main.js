@@ -1,5 +1,7 @@
 const https = require('https');
 const http = require('http');
+const request = require('request');
+const cheerio = require('cheerio');
 const fs = require('fs');
 const ca = fs.readFileSync('./cert/srca.cer.pem');
 const nodemailer = require('nodemailer');
@@ -8,6 +10,7 @@ const scanf = require('scanf');
 const program = require('commander');
 const UA = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36";
 const inquirer = require('inquirer');
+let $;
 var config = {};
 inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 var prompt = inquirer.createPromptModule();
@@ -116,9 +119,34 @@ let questions = [
 		}
 	}
 ];
+function getLeftTicketUrl(callback) {
+	request.get("https://kyfw.12306.cn/otn/leftTicket/init", (e, r, b) => {
+		if (e) {
+			callback && callback({leftTicketUrl: 'leftTicket/query'});
+			console.log(e);
+			return;
+		}
+		$ = cheerio.load(r.body, {decodeEntities: false});
+		let pageHtml = $.html();
+		let re = pageHtml.match(/var CLeftTicketUrl = '\w+\/\w+/ig);
+		let leftTicketUrl;
+		
+		if (re && re.length) {
+			leftTicketUrl = re[0].replace(/var CLeftTicketUrl = \'/, '');
+			
+			if (!leftTicketUrl) {
+				leftTicketUrl = 'leftTicket/query';
+			}
+		}
+		else {
+			leftTicketUrl = 'leftTicket/query';			
+		}
+		callback && callback({leftTicketUrl: leftTicketUrl});
+	});
+}
 fs.readFile('config.json', 'utf-8', function (err, data) {
 	if (err || !data || isRewrite) {
-		prompt(questions).then(answer => {
+		inquirer.prompt(questions).then(answer => {
 			answer.from_station = _stations.stationInfo[answer.from_station];	
 			answer.end_station = _stations.stationInfo[answer.end_station];	
 			answer.train_num = answer.train_num.split('|');
@@ -134,9 +162,12 @@ fs.readFile('config.json', 'utf-8', function (err, data) {
 	}
 	var rule = new schedule.RecurrenceRule();
 	rule.second = [0];
-	queryTickets(config);
-	schedule.scheduleJob(rule, function () {
+	getLeftTicketUrl((data) => {
+		config.leftTicketUrl = data.leftTicketUrl;
 		queryTickets(config);
+		schedule.scheduleJob(rule, function () {
+			queryTickets(config);
+		});
 	});
 });
 
@@ -146,11 +177,13 @@ var yz_temp = [], yw_temp = [];//保存余票状态
 */
 function queryTickets(config) {
 	/*设置请求头参数*/
+	let leftTicketUrl = config.leftTicketUrl;
+	console.log(leftTicketUrl);
 	var options = {
 		hostname: 'kyfw.12306.cn',//12306
 		port: 443,
 		method: 'GET',
-		path: '/otn/leftTicket/queryO?leftTicketDTO.train_date=' + config.time + '&leftTicketDTO.from_station=' + config.from_station.code + '&leftTicketDTO.to_station=' + config.end_station.code + '&purpose_codes=' + config.ticket_type,
+		path: '/otn/'+leftTicketUrl+'?leftTicketDTO.train_date=' + config.time + '&leftTicketDTO.from_station=' + config.from_station.code + '&leftTicketDTO.to_station=' + config.end_station.code + '&purpose_codes=' + config.ticket_type,
 		ca: [ca],//证书
 		rejectUnauthorized: false,
 		headers: {
