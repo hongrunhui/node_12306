@@ -12,7 +12,6 @@ const UA = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like
 const inquirer = require('inquirer');
 let $;
 var config = {};
-inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
 var prompt = inquirer.createPromptModule();
 let _stations = JSON.parse(fs.readFileSync('station.json', 'utf-8'));
 let isRewrite = hasArgv(process.argv, '-r');
@@ -50,19 +49,18 @@ let questions = [
 		}
 	},
 	{
-		type: 'autocomplete',
+		type: 'input',
 		name: 'from_station',
 		message: '输入始发站拼音-from_station(如:shanghai)：',
-		source: searchTrain,
-		// validate(input) {
-		// 	if (_stations.stationInfo[input]) {
-		// 		return true;
-		// 	}
-		// 	else {
-		// 		console.log(' (没有这个车站哦，请重新输入)');
-		// 		return false;
-		// 	}
-		// }
+		validate(input) {
+			if (_stations.stationInfo[input]) {
+				return true;
+			}
+			else {
+				console.log(' (没有这个车站哦，请重新输入)');
+				return false;
+			}
+		}
 	},
 	{
 		type: 'input',
@@ -146,7 +144,7 @@ function getLeftTicketUrl(callback) {
 }
 fs.readFile('config.json', 'utf-8', function (err, data) {
 	if (err || !data || isRewrite) {
-		inquirer.prompt(questions).then(answer => {
+		prompt(questions).then(answer => {
 			answer.from_station = _stations.stationInfo[answer.from_station];	
 			answer.end_station = _stations.stationInfo[answer.end_station];	
 			answer.train_num = answer.train_num.split('|');
@@ -154,21 +152,31 @@ fs.readFile('config.json', 'utf-8', function (err, data) {
 			answer.receive_mail = answer.receive_mail || answer.your_mail;
 			config = answer;
 			console.log(config);
-			fs.writeFile('config.json', JSON.stringify(config));	
+			fs.writeFile('config.json', JSON.stringify(config));
+			var rule = new schedule.RecurrenceRule();
+			rule.second = [0];
+			getLeftTicketUrl((data) => {
+				config.leftTicketUrl = data.leftTicketUrl;
+				queryTickets(config);
+				schedule.scheduleJob(rule, function () {
+					queryTickets(config);
+				});
+			});
 		});
 	}
 	else {
 		config = JSON.parse(data);
-	}
-	var rule = new schedule.RecurrenceRule();
-	rule.second = [0];
-	getLeftTicketUrl((data) => {
-		config.leftTicketUrl = data.leftTicketUrl;
-		queryTickets(config);
-		schedule.scheduleJob(rule, function () {
+		var rule = new schedule.RecurrenceRule();
+		rule.second = [0];
+		getLeftTicketUrl((data) => {
+			config.leftTicketUrl = data.leftTicketUrl;
 			queryTickets(config);
+			schedule.scheduleJob(rule, function () {
+				queryTickets(config);
+			});
 		});
-	});
+	}
+	
 });
 
 var yz_temp = [], yw_temp = [];//保存余票状态
