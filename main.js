@@ -15,10 +15,11 @@ var config = {};
 var prompt = inquirer.createPromptModule();
 let _stations = JSON.parse(fs.readFileSync('station.json', 'utf-8'));
 let isRewrite = hasArgv(process.argv, '-r');
+let isUpdateStation = hasArgv(process.argv, '-t');
 function hasArgv(argv, filter) {
 	argv = argv.slice(2);
 	return argv.some((item, i) => {
-		return filter;
+		return filter === item;
 	});
 }
 let startStations = {
@@ -163,8 +164,9 @@ let questions = [
 ];
 function getLeftTicketUrl(callback) {
 	request.get("https://kyfw.12306.cn/otn/leftTicket/init", (e, r, b) => {
+		const defaultUrl = 'leftTicket/queryZ';
 		if (e) {
-			callback && callback({leftTicketUrl: 'leftTicket/query'});
+			callback && callback({leftTicketUrl: defaultUrl});
 			console.log(e);
 			return;
 		}
@@ -177,14 +179,18 @@ function getLeftTicketUrl(callback) {
 			leftTicketUrl = re[0].replace(/var CLeftTicketUrl = \'/, '');
 			
 			if (!leftTicketUrl) {
-				leftTicketUrl = 'leftTicket/query';
+				leftTicketUrl = defaultUrl;
 			}
 		}
 		else {
-			leftTicketUrl = 'leftTicket/query';			
+			leftTicketUrl = defaultUrl;			
 		}
 		callback && callback({leftTicketUrl: leftTicketUrl});
 	});
+}
+if (isUpdateStation) {
+	stationJson();
+	return;
 }
 fs.readFile('config.json', 'utf-8', function (err, data) {
 	if (err || !data || isRewrite) {
@@ -229,7 +235,7 @@ var yz_temp = [], yw_temp = [];//保存余票状态
 function queryTickets(config) {
 	/*设置请求头参数*/
 	let leftTicketUrl = config.leftTicketUrl;
-	console.log(leftTicketUrl);
+	console.log('当前请求的地址：', leftTicketUrl);
 	var options = {
 		hostname: 'kyfw.12306.cn',//12306
 		port: 443,
@@ -238,12 +244,16 @@ function queryTickets(config) {
 		ca: [ca],//证书
 		rejectUnauthorized: false,
 		headers: {
+			"Accept": "*/*",
 			'Connection': 'keep-alive',
 			'Host': 'kyfw.12306.cn',
 			'User-Agent': UA,
 			"Connection": "keep-alive",
 			"Referer": "https://kyfw.12306.cn/otn/leftTicket/init",
-			"Cookie": "__NRF=D2A7CA0EBB8DD82350AAB934FA35745B; JSESSIONID=0A02F03F9852081DDBFEA4AA03EF4252C569EB7AB1; _jc_save_detail=true; _jc_save_showIns=true; BIGipServerotn=1072693770.38945.0000; _jc_save_fromStation=%u77F3%u5BB6%u5E84%2CSJP; _jc_save_toStation=%u5408%u80A5%2CHFH; _jc_save_fromDate=2017-02-17; _jc_save_toDate=2017-01-19; _jc_save_wfdc_flag=dc",
+			"If-Modified-Since": "0",
+			"X-Requested-With": "XMLHttpRequest",
+			"Cookie": "JSESSIONID=B25D95DFEC49E5C65176B381555C38DA; _jc_save_wfdc_flag=dc; route=6f50b51faa11b987e576cdb301e545c4; BIGipServerotn=2766406154.38945.0000; acw_tc=AQAAADUPbiLlcgsAuLz+Z7yML4078ek+; BIGipServerpool_passport=334299658.50215.0000; RAIL_EXPIRATION=1516454884979; RAIL_DEVICEID=qZf4Jpki03x17e3hoZ1td3gIxLrh3ktcodtRqpODJdH0J-WB98EoFETG8NNJC-YXQIDd4wA6DD4CP5YhHvU6WrxKIiEDgvcTnhaj9ZvFkoAulVhEWzTXFP0O1VXy5nf24YuP23pxRskcdaaviMsDkCSMZgGwWQWC; _jc_save_toDate=2018-01-18; _jc_save_fromStation=%u5317%u4EAC%2CBJP; _jc_save_toStation=%u5408%u80A5%2CHFH; _jc_save_fromDate=2018-02-01",
+			// "Cookie": "__NRF=D2A7CA0EBB8DD82350AAB934FA35745B; JSESSIONID=0A02F03F9852081DDBFEA4AA03EF4252C569EB7AB1; _jc_save_detail=true; _jc_save_showIns=true; BIGipServerotn=1072693770.38945.0000; _jc_save_fromStation=%u77F3%u5BB6%u5E84%2CSJP; _jc_save_toStation=%u5408%u80A5%2CHFH; _jc_save_fromDate=2017-02-17; _jc_save_toDate=2017-01-19; _jc_save_wfdc_flag=dc",
 		}
 	};
 	function b4(ct, cv) {
@@ -274,18 +284,29 @@ function queryTickets(config) {
 			cu.is_support_card = cq[18];
 			cu.controlled_train_flag = cq[19];
 			cu.gg_num = cq[20] ? cq[20] : "--";
+			// 高级软卧
 			cu.gr_num = cq[21] ? cq[21] : "--";
+			// 其他
 			cu.qt_num = cq[22] ? cq[22] : "--";
+			// 软卧
 			cu.rw_num = cq[23] ? cq[23] : "--";
+			// 软座
 			cu.rz_num = cq[24] ? cq[24] : "--";
 			cu.tz_num = cq[25] ? cq[25] : "--";
+			// 无座
 			cu.wz_num = cq[26] ? cq[26] : "--";
 			cu.yb_num = cq[27] ? cq[27] : "--";
+			// 硬卧
 			cu.yw_num = cq[28] ? cq[28] : "--";
+			// 硬座
 			cu.yz_num = cq[29] ? cq[29] : "--";
+			// 二等座
 			cu.ze_num = cq[30] ? cq[30] : "--";
+			// 一等座
 			cu.zy_num = cq[31] ? cq[31] : "--";
+			// 商务座
 			cu.swz_num = cq[32] ? cq[32] : "--";
+			// 动卧
 			cu.srrb_num = cq[33] ? cq[33] : "--";
 			cu.yp_ex = cq[34];
 			cu.seat_types = cq[35];
@@ -349,6 +370,52 @@ function queryTickets(config) {
 				}
 				var yz = cur_train.yz_num;//硬座数目
 				var yw = cur_train.yw_num;//硬卧数目
+				let trains = {
+					'高级软卧':cur_train.gr_num,
+					// 其他
+					'其他': cur_train.qt_num,
+					// 软卧
+					'软卧': cur_train.rw_num,
+					// 软座
+					'软座': cur_train.rz_num,
+					// 无座
+					'无座': cur_train.wz_num,
+					// 硬卧
+					'硬卧': cur_train.yw_num,
+					// 硬座
+					'硬座': cur_train.yz_num,
+					// 二等座
+					'二等座': cur_train.ze_num,
+					// 一等座
+					'一等座': cur_train.zy_num,
+					// 商务座
+					'商务座': cur_train.swz_num,
+					// 动卧
+					'动卧': cur_train.srrb_num
+				}
+				console.log('====', trains);
+				// // 高级软卧
+				// var gr_num = cur_train.gr_num;
+				// // 其他
+				// var qt_num = cur_train.qt_num;
+				// // 软卧
+				// var rw_num = cur_train.rw_num;
+				// // 软座
+				// var rz_num = cur_train.rz_num;
+				// // 无座
+				// var wz_num = cur_train.wz_num;
+				// // 硬卧
+				// var yw_num = cur_train.yw_num;
+				// // 硬座
+				// var yz_num = cur_train.yz_num;
+				// // 二等座
+				// var ze_num = cur_train.ze_num;
+				// // 一等座
+				// var zy_num = cur_train.zy_num;
+				// // 商务座
+				// var swz_num = cur_train.swz_num;
+				// // 动卧
+				// var srrb_num = cur_train.srrb_num;
 				var trainNum = cur_train.station_train_code;//车次
 				console.log('\n ' + trainNum + ' 车次的硬座余票数:', yz, ', 硬卧余票数:', yw, '。当前时间：' + getTime());
 				if (yz != '无' && yz != '--' || yw != '无' && yw != '--') {
@@ -393,7 +460,7 @@ function queryTickets(config) {
 function stationJson() {
 	let _opt = {
 		hostname: 'kyfw.12306.cn',
-		path: '/otn/resources/js/framework/station_name.js?station_version=1.9042',
+		path: '/otn/resources/js/framework/station_name.js?station_version=1.9044',
 		ca: [ca],
 		rejectUnauthorized: false		
 	};
@@ -403,7 +470,7 @@ function stationJson() {
 			_data += buff;
 		});
 		res.on('end', function () {
-			// console.log(_data);
+			console.log(_data + '\n如果前面的信息不是车站信息，那就说明没有抓取成功，可能需要升级一下station_version');			
 			try {
 				let re = /\|[\u4e00-\u9fa5]+\|[A-Z]{3}\|\w+\|\w+\|\w+@\w+/g;
 				// console.log('data',_data.match(re));
@@ -435,8 +502,9 @@ function stationJson() {
 				});
 				// console.log(stationMap["hefei"]);
 				fs.writeFile('station.json', JSON.stringify({ stationName: stationArray, stationInfo: stationMap }));
+				console.log('成功更新车站信息！');
 			} catch (e) {
-				console.log(e);
+				console.log('更新车站信息失败：', e);
 				return null;
 			}
 		});
